@@ -11,7 +11,9 @@ defn render (store)
         :height |100%
       if
         some? $ :profile store
-        comp-editor $ :files store
+        comp-editor (:files store)
+          :focus $ :state store
+          :file store
         comp-join
 
 def comp-container $ create-comp :container render

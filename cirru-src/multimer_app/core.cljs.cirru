@@ -10,7 +10,7 @@ defonce store-ref $ atom nil
 
 defonce states-ref $ atom ({})
 
-defonce ws $ new js/WebSocket |ws://localhost:7100
+defonce ws $ new js/WebSocket |ws://repo:7100
 
 defn dispatch (op op-data)
   .send ws $ pr-str ([] op op-data)
@@ -23,10 +23,10 @@ defn render-app ()
 
 defn handle-message (event)
   let
-    (message $ reader/read-string (.-data event))
+    (message $ reader/read-string (.-data event)) (old-store @store-ref)
 
-    println |patched.
     reset! store-ref $ differ/patch @store-ref message
+    println |patched.
 
 defn -main ()
   enable-console-print!
