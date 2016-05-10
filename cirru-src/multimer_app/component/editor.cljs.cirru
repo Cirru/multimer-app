@@ -38,12 +38,14 @@ defn render (file focus target-expression)
         :flex-direction |column
       div
         {} :style $ {} (:padding "|40px 8px")
+          :flex 1
+          :overflow |auto
         comp-expression target-expression
           subvec (last focus)
             , 0 1
           first focus
           last focus
-          , false
+          , true false
 
       div
         {} :style $ {} (:display |flex)
@@ -51,12 +53,13 @@ defn render (file focus target-expression)
         div
           {} :style $ {} (:display |flex)
             :flex-direction |row
+          render-button "|new expr" :edit/new-expression focus
           render-button |append :edit/append focus
-          render-button |fold :edit/fold focus
           render-button |line :edit/prepend-line focus
           render-button |remove :edit/remove focus
           render-button |insert :edit/insert focus
           render-button |prepend :edit/prepend focus
+          render-button |fold :edit/fold focus
           render-button |unfold :edit/unfold focus
           render-button |newline :edit/append-line focus
           button $ {} :style style-button :event

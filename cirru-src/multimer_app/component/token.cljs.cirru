@@ -22,15 +22,11 @@ defn render
             , 0
 
       span $ {} :style
-        {}
-          :width $ str
-            + 16 $ text-width token "|Menlo, Consolas" 16
-            , |px
+        {} (:width |auto)
           :font-family "|Menlo, Consolas"
           :font-size |14px
           :margin "|0 4px"
           :border |none
-          :outline |none
           :background-color $ if focused?
             hsl 0 0 84
             if blank?
@@ -38,10 +34,13 @@ defn render
               hsl 0 0 94
 
           :outline $ if focused?
-            str "|1px solid " $ hsl 0 90 60
+            str "|1px solid " $ hsl 0 90 80
             , |none
-          :padding "|0 4px"
-          :line-height 1.8
+          :padding "|0 1px"
+          :line-height 1.6
+          :display |inline-block
+          :min-width |16px
+          :text-align |center
 
         , :attrs
         {} (:inner-text token)

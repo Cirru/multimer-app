@@ -3,6 +3,7 @@ ns multimer-app.component.movable-type $ :require
   [] hsl.core :refer $ [] hsl
   [] respo.alias :refer $ [] create-comp div span input pre button
   [] multimer-app.util.element :refer $ [] text
+  [] multimer-app.style.widget :as widget
 
 defn init-state ()
   {} :draft | :candidates (hash-set)
@@ -40,11 +41,13 @@ defn handle-change (mutate)
   fn (simple-event dispatch)
     mutate :draft $ :value simple-event
 
-defn handle-keydown (draft mutate)
+defn handle-keydown (draft mutate focus)
   fn (simple-event dispatch)
     if
       = 13 $ :key-code simple-event
-      do (mutate :draft |)
+      do
+        dispatch :edit/update-token $ conj focus draft
+        mutate :draft |
         mutate :add draft
 
 defn handle-remove (word mutate)
@@ -55,9 +58,64 @@ defn handle-toggle (mutate)
   fn (simple-event dispatch)
     mutate :toggle
 
+defn handle-once (mutate word focus)
+  fn (e dispatch)
+    dispatch :edit/update-token $ conj focus word
+    mutate :draft |
+
+defn handle-submit (mutate word focus)
+  fn (e dispatch)
+    dispatch :edit/update-token $ conj focus word
+    mutate :draft |
+    mutate :add word
+
 defn render (dictionary focus)
   fn (state mutate)
     div ({})
+      div
+        {} :style $ {} (:padding "|0 8px")
+          :margin "|16epx 0px"
+        input $ {} :event
+          {} :input (handle-change mutate)
+            , :keydown
+            handle-keydown (:draft state)
+              , mutate focus
+
+          , :style
+          {} (:line-height 2)
+            :font-size |14px
+            :font-family |Menlo,Consolas
+            :padding "|0 8px"
+          , :attrs
+          {} :value $ :draft state
+
+        div $ {} :style
+          {} (:width |8px)
+            :display |inline-block
+
+        button $ {} :style
+          merge widget/button $ {}
+          , :event
+          {} :click $ handle-submit mutate (:draft state)
+            , focus
+          , :attrs
+          {} :inner-text |submit
+
+        button $ {} :style
+          merge widget/button $ {}
+          , :event
+          {} :click $ handle-once mutate (:draft state)
+            , focus
+          , :attrs
+          {} :inner-text |once
+
+        button $ {} :style
+          merge widget/button $ {}
+          , :event
+          {} :click $ handle-toggle mutate
+          , :attrs
+          {} :inner-text |edit?
+
       div
         {} :style $ {} (:margin "|8px 0")
         ->> dictionary (sort)
@@ -108,31 +166,5 @@ defn render (dictionary focus)
                 {} :click $ handle-local-click word focus mutate (:editable? state)
 
           into $ sorted-map
-
-      div
-        {} :style $ {} (:padding "|0 8px")
-        input $ {} :event
-          {} :input (handle-change mutate)
-            , :keydown
-            handle-keydown (:draft state)
-              , mutate
-
-          , :style
-          {} (:line-height 2)
-            :font-size |14px
-            :font-family |Menlo,Consolas
-            :padding "|0 8px"
-          , :attrs
-          {} :value $ :draft state
-
-        div $ {} :style
-          {} (:width |8px)
-            :display |inline-block
-
-        button $ {} :style ({})
-          , :event
-          {} :click $ handle-toggle mutate
-          , :attrs
-          {} :inner-text |Editable?
 
 def comp-movable-type $ create-comp :movable-type init-state update-state render
