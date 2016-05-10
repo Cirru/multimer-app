@@ -17,6 +17,10 @@ defn render
   fn (state mutate)
     let
       (focused? $ = focused coord)
+        blank? $ or (= token |)
+          > (.indexOf token "| ")
+            , 0
+
       input $ {} :style
         {}
           :width $ str
@@ -29,12 +33,18 @@ defn render
           :outline |none
           :background-color $ if focused?
             hsl 0 0 84
-            hsl 0 0 94
+            if blank?
+              hsl 0 80 80
+              hsl 0 0 94
+
+          :outline $ if focused?
+            str "|1px solid " $ hsl 0 90 60
+            , |none
           :padding "|0 8px"
           :line-height 1.4
 
         , :attrs
-        {} :value token
+        {} :value token :class-name $ if focused? |cursor nil
         , :event
         {}
           :input $ handle-change coord filename

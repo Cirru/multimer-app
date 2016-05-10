@@ -26,15 +26,16 @@ defn render
             :margin "|0 4px"
             :padding $ if inline? "|8px 8px" "|8px 18px"
             :border $ str "|1px solid "
-              hsl 0 0 70
-            :background-color $ if focused?
-              hsl 0 0 84
-              hsl 0 0 94
+              hsl 0 0 80
+            :background-color $ hsl 0 0 94
+            :outline $ if focused?
+              str "|1px solid " $ hsl 0 0 80
+              , |none
 
           , :event
           {} :click $ handle-focus coord filename
           , :attrs
-          {} :z-index |1
+          {} :z-index |1 :class-name $ if focused? |cursor nil
 
         ->> expression
           map-indexed $ fn (index child)

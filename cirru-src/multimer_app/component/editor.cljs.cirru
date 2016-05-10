@@ -15,7 +15,7 @@ def style-button $ {} (:display |block)
   :font-size |16px
   :line-height 2
   :font-family "|Menlo, Consolas"
-  :margin |10px
+  :margin "|6px 10px"
   :outline |none
 
 defn handle-append (focus)
@@ -53,7 +53,9 @@ defn handle-prepend-line (focus)
 defn render (files focus file)
   fn (state mutate)
     div
-      {} :style $ {} :height |100%
+      {} :style $ {} (:height |100%)
+        :display |flex
+        :flex-direction |column
       div
         {} :style $ {} (:display |flex)
           :width |100%
@@ -75,7 +77,7 @@ defn render (files focus file)
           if (some? target-expression)
             div
               {} :style $ {} (:display |flex)
-                :height |100%
+                :flex 1
               div
                 {} :style $ {} (:display |flex)
                   :flex-direction |column
