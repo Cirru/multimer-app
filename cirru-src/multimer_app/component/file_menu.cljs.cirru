@@ -5,12 +5,6 @@ ns multimer-app.component.file-menu $ :require
   [] multimer-app.util.element :refer $ [] text
   [] respo.component.debug :refer $ [] comp-debug
 
-defn init-state (filenames)
-  , true
-
-defn update-state (state)
-  not state
-
 defn handle-toggle (mutate)
   fn (simple-event dispatch)
     mutate
@@ -25,8 +19,8 @@ defn render (filenames focus)
     div
       {} :style $ {} (:width |400px)
         :position |relative
-        :background-color $ hsl 200 80 60
-        :color $ hsl 0 0 100
+        :background-color $ hsl 200 80 94
+        :color $ hsl 0 0 40
         :line-height 2
         :cursor |pointer
         :font-size |16px
@@ -42,7 +36,7 @@ defn render (filenames focus)
             {} :click $ handle-toggle mutate
           text $ or selected-file "|no file selected"
 
-      if state $ div
+      div
         {} :style $ {}
           :background-color $ hsl 200 60 60
           :color $ hsl 0 0 100
@@ -62,4 +56,4 @@ defn render (filenames focus)
 
           into $ sorted-map
 
-def comp-file-menu $ create-comp :file-menu init-state update-state render
+def comp-file-menu $ create-comp :file-menu render

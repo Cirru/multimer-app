@@ -4,12 +4,6 @@ ns multimer-app.component.definition-menu $ :require
   [] respo.alias :refer $ [] create-comp div
   [] multimer-app.util.element :refer $ [] text
 
-defn init-state (tree focus)
-  , true
-
-defn update-state (state)
-  not state
-
 defn handle-toggle (mutate)
   fn (state dispatch)
     mutate
@@ -23,8 +17,8 @@ defn render (tree focus)
   fn (state mutate)
     div
       {} :style $ {} (:position |relative)
-        :background-color $ hsl 300 80 80
-        :color $ hsl 0 0 100
+        :background-color $ hsl 300 80 94
+        :color $ hsl 0 0 40
         :line-height 2
         :width |300px
         :cursor |pointer
@@ -60,4 +54,4 @@ defn render (tree focus)
 
           into $ sorted-map
 
-def comp-definition-menu $ create-comp :definition-menu init-state update-state render
+def comp-definition-menu $ create-comp :definition-menu render

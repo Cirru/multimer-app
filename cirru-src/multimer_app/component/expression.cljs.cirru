@@ -11,7 +11,7 @@ defn handle-focus (coord filename)
     dispatch :state/focus $ [] filename coord
 
 defn render
-  expression coord filename focused
+  expression coord filename focused tail?
   fn (state mutate)
     let
       (short? $ < (count expression) (, 4))
@@ -22,15 +22,17 @@ defn render
       div
         {} :style
           {}
-            :display $ if inline? |inline-block |block
+            :display $ if (or inline? tail?)
+              , |inline-block |block
             :margin "|0 4px"
-            :padding $ if inline? "|8px 8px" "|8px 18px"
+            :padding $ if inline? "|4px 16px 4px 4px" "|4px 16px 4px 4px"
             :border $ str "|1px solid "
-              hsl 0 0 80
+              hsl 0 0 86
             :background-color $ hsl 0 0 94
             :outline $ if focused?
-              str "|1px solid " $ hsl 0 0 80
+              str "|1px solid " $ hsl 0 90 70
               , |none
+            :vertical-align |top
 
           , :event
           {} :click $ handle-focus coord filename
@@ -41,8 +43,11 @@ defn render
           map-indexed $ fn (index child)
             let
               (child-coord $ conj coord index)
+                last-child? $ and (not tail?)
+                  = index $ dec (count expression)
+
               [] index $ if (vector? child)
-                comp-expression child child-coord filename focused
+                comp-expression child child-coord filename focused last-child?
                 comp-token child child-coord filename focused
 
           into $ sorted-map

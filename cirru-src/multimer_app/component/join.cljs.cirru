@@ -5,7 +5,7 @@ ns multimer-app.component.join $ :require
   [] respo.component.debug :refer $ [] comp-debug
 
 defn init-state ()
-  {} :name | :password |
+  {} :name |chen :password |
 
 defn update-state (state target x)
   assoc state target x

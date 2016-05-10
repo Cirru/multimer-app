@@ -26,11 +26,6 @@ defn handle-message (event)
     (message $ reader/read-string (.-data event)) (old-store @store-ref)
 
     reset! store-ref $ differ/patch @store-ref message
-    let
-      (cursor $ .querySelector js/document |.cursor)
-      if (some? cursor)
-        do $ .focus cursor
-
     println |patched.
 
 defn -main ()

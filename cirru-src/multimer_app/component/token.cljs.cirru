@@ -1,7 +1,7 @@
 
 ns multimer-app.component.token $ :require
   [] hsl.core :refer $ [] hsl
-  [] respo.alias :refer $ [] create-comp div span input
+  [] respo.alias :refer $ [] create-comp div span
   [] multimer-app.util.measure :refer $ [] text-width
 
 defn handle-change (coord filename)
@@ -21,14 +21,14 @@ defn render
           > (.indexOf token "| ")
             , 0
 
-      input $ {} :style
+      span $ {} :style
         {}
           :width $ str
             + 16 $ text-width token "|Menlo, Consolas" 16
             , |px
           :font-family "|Menlo, Consolas"
-          :font-size |16px
-          :margin "|0 8px"
+          :font-size |14px
+          :margin "|0 4px"
           :border |none
           :outline |none
           :background-color $ if focused?
@@ -40,14 +40,14 @@ defn render
           :outline $ if focused?
             str "|1px solid " $ hsl 0 90 60
             , |none
-          :padding "|0 8px"
-          :line-height 1.4
+          :padding "|0 4px"
+          :line-height 1.8
 
         , :attrs
-        {} :value token :class-name $ if focused? |cursor nil
+        {} (:inner-text token)
+          :z-index 1
+          :class-name $ if focused? |cursor nil
         , :event
-        {}
-          :input $ handle-change coord filename
-          :click $ handle-focus coord filename
+        {} $ :click (handle-focus coord filename)
 
 def comp-token $ create-comp :token render
