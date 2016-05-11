@@ -5,6 +5,7 @@ ns multimer-app.component.finder $ :require
   [] multimer-app.component.definition-menu :refer $ [] comp-definition-menu
   [] multimer-app.util.element :refer $ [] text
   [] multimer-app.style.widget :as widget
+  [] respo.component.debug :refer $ [] comp-debug
 
 defn handle-back (e dispatch)
   dispatch :state/focus nil
@@ -12,6 +13,7 @@ defn handle-back (e dispatch)
 defn render (files focus file)
   fn (state mutate)
     div ({})
+      -- comp-debug file $ {}
       div
         {} :style $ {} (:display |flex)
           :width |100%

@@ -6,21 +6,22 @@ ns multimer-app.component.editor $ :require
   [] multimer-app.component.expression :refer $ [] comp-expression
   [] multimer-app.component.movable-type :refer $ [] comp-movable-type
   [] respo.component.debug :refer $ [] comp-debug
+  [] multimer-app.style.widget :as widget
 
-def style-button $ {} (:display |block)
-  :border |none
-  :background-color $ hsl 300 80 60
-  :color $ hsl 0 0 100
-  :font-size |14px
-  :line-height 2
-  :font-family "|Menlo, Consolas"
-  :margin "|6px 4px"
-  :outline |none
+def style-button $ merge widget/button
+  {}
+    :background-color $ hsl 300 80 60
+    :font-family "|Menlo, Consolas"
+    :margin "|6px 4px"
 
 defn handle-close (focus)
   fn (simple-event dispatch)
     dispatch :state/focus $ [] (first focus)
       , nil
+
+defn handle-save (filename)
+  fn (e dispatch)
+    dispatch :effect/save-file filename
 
 defn render-button (guide command focus)
   let
@@ -30,14 +31,15 @@ defn render-button (guide command focus)
       , :event
       {} :click handler
 
-defn render (file focus target-expression)
+defn render
+  file focus target-expression vocabulary
   fn (state mutate)
     div
       {} :style $ {} (:height |100%)
         :display |flex
         :flex-direction |column
       div
-        {} :style $ {} (:padding "|40px 8px")
+        {} :style $ {} (:padding "|200px 8px")
           :flex 1
           :overflow |auto
         comp-expression target-expression
@@ -62,6 +64,12 @@ defn render (file focus target-expression)
           render-button |unfold :edit/unfold focus
           render-button |newline :edit/append-line focus
           render-button |line :edit/prepend-line focus
+          render-button |out :state/out nil
+          button $ {} :style style-button :event
+            {} :click $ handle-save (first focus)
+            , :attrs
+            {} :inner-text |save
+
           button $ {} :style style-button :event
             {} :click $ handle-close focus
             , :attrs
@@ -73,6 +81,6 @@ defn render (file focus target-expression)
             comp-movable-type
               into (hash-set)
                 flatten $ :tree file
-              , focus
+              , focus vocabulary
 
 def comp-editor $ create-comp :editor render

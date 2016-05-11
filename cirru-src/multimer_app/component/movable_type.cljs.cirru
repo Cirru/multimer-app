@@ -5,35 +5,24 @@ ns multimer-app.component.movable-type $ :require
   [] multimer-app.util.element :refer $ [] text
   [] multimer-app.style.widget :as widget
   [] clojure.string :as string
+  [] respo.component.debug :refer $ [] comp-debug
 
 def leading-chars |abcdefghijklmnopqrstuvwxyz:|.@
 
 defn init-state ()
-  {} :draft | :candidates (hash-set)
-    , :editable? false
+  {} :draft | :editable? false :show? true
 
 defn update-state (state op op-data)
   case op
     :draft $ assoc state :draft op-data
-    :add $ update state :candidates
-      fn (candidates)
-        conj candidates op-data
-
-    :rm $ update state :candidates
-      fn (candidates)
-        into (hash-set)
-          filter
-            fn (x)
-              not= x op-data
-            , candidates
-
     :toggle $ update state :editable? not
+    :show $ update state :show? not
     , state
 
 defn handle-local-click
   word focus mutate editable?
   fn (simple-event dispatch)
-    if editable? (mutate :rm word)
+    if editable? (dispatch :vocabulary/rm-word word)
       dispatch :edit/update-token $ conj focus word
 
 defn handle-change (mutate)
@@ -47,20 +36,24 @@ defn handle-keydown (draft mutate focus)
         = 13 $ :key-code simple-event
         not= draft |
       do (mutate :draft |)
-        mutate :add draft
+        dispatch :vocabulary/add-word draft
 
 defn handle-remove (word mutate)
   fn (simple-event dispatch)
-    mutate :rm word
+    dispatch :vocabulary/rm-word word
 
 defn handle-toggle (mutate)
   fn (simple-event dispatch)
     mutate :toggle
 
-defn render (dictionary focus)
+defn handle-show (mutate)
+  fn (simple-event dispatch)
+    mutate :show
+
+defn render (dictionary focus vocabulary)
   fn (state mutate)
     let
-      (display-dict $ if (:editable? state) (:candidates state) (into (hash-set) (concat dictionary $ :candidates state)))
+      (display-dict $ if (:editable? state) (, vocabulary) (into (hash-set) (concat (filter (fn (x) (not= x |)) (, dictionary)) (, vocabulary))))
         grouped-dict $ ->> display-dict
           group-by $ fn (word)
             let
@@ -68,45 +61,40 @@ defn render (dictionary focus)
               if (string/includes? leading-chars first-letter)
                 , first-letter |0
 
-      println grouped-dict
       div ({})
         div
           {} :style $ {} (:margin "|16px 4px")
             :max-height |400px
             :overflow |auto
-          ->> grouped-dict (sort)
-            map $ fn (entry)
-              [] (key entry)
-                div ({})
-                  ->> (val entry)
-                    map $ fn (word)
-                      [] word $ pre
-                        {} :style
-                          {} (:font-family |Menlo,Consolas)
-                            :font-size |14px
-                            :background-color $ if (:editable? state)
-                              hsl 0 80 93
-                              hsl 300 80 70
-                            :padding "|0 8px"
-                            :line-height 2
-                            :color $ if (:editable? state)
-                              hsl 0 90 40
-                              hsl 0 0 100
-                            :display |inline-block
-                            :margin "|4px 6px"
+          if (:show? state)
+            ->> grouped-dict (sort)
+              map $ fn (entry)
+                [] (key entry)
+                  div ({})
+                    ->> (val entry)
+                      map $ fn (word)
+                        [] word $ pre
+                          {} :style
+                            merge widget/button $ {}
+                              :background-color $ if (:editable? state)
+                                hsl 0 80 93
+                                hsl 300 80 70
+                              :color $ if (:editable? state)
+                                hsl 0 90 40
+                                hsl 0 0 100
 
-                          , :attrs
-                          {} :inner-text word
-                          , :event
-                          {} :click $ handle-local-click word focus mutate (:editable? state)
+                            , :attrs
+                            {} :inner-text word
+                            , :event
+                            {} :click $ handle-local-click word focus mutate (:editable? state)
 
-                    into $ sorted-map
+                      into $ sorted-map
 
-            into $ sorted-map
+              into $ sorted-map
 
         div
           {} :style $ {} (:padding "|0 8px")
-            :margin "|16epx 0px"
+            :margin "|16px 0px"
           input $ {} :event
             {} :input (handle-change mutate)
               , :keydown
@@ -131,5 +119,13 @@ defn render (dictionary focus)
             {} :click $ handle-toggle mutate
             , :attrs
             {} :inner-text |edit?
+          button $ {} :style
+            merge widget/button $ {}
+            , :event
+            {} :click $ handle-show mutate
+            , :attrs
+            {} :inner-text |show?
+
+        -- comp-debug state $ {}
 
 def comp-movable-type $ create-comp :movable-type init-state update-state render

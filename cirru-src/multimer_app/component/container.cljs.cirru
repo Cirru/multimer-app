@@ -11,6 +11,7 @@ defn render (store)
     div
       {} :style $ {} (:width |100%)
         :height |100%
+      -- comp-debug store $ {}
       if
         some? $ :profile store
         let
@@ -32,6 +33,7 @@ defn render (store)
           if (some? maybe-expression)
             comp-editor (:file store)
               , focus maybe-expression
+              :vocabulary store
             comp-finder (:files store)
               , focus
               :file store

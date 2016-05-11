@@ -26,11 +26,11 @@ defn render
               , |inline-block |block
             :margin $ if tail? "|2px 2px 0 16px"
               if (or inline? tail?)
-                , "|2px 2px" "|2px 2px 0 16px"
+                , "|2px 2px" "|2px 2px 0px 16px"
 
             :padding $ if
               and inline? $ not tail?
-              , "|0px 4px 0px 4px" "|0 0 0 4px"
+              , "|0px 4px 2px 4px" "|0 0 0 4px"
             :border-style |solid
             :border-color $ hsl 0 0 86
             :border-width $ if tail? "|0 0 0 1px"
