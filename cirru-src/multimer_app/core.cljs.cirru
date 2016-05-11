@@ -10,7 +10,8 @@ defonce store-ref $ atom nil
 
 defonce states-ref $ atom ({})
 
-defonce ws $ new js/WebSocket |ws://repo:7100
+defonce ws $ new js/WebSocket
+  str |ws:// js/location.hostname |:7100
 
 defn dispatch (op op-data)
   .send ws $ pr-str ([] op op-data)

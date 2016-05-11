@@ -38,6 +38,7 @@
   [:html
    [:head
     [:title "Multimer"]
+    [:meta {:name "viewport", :content "width=device-width, user-scalable=no"}]
     [:link
      {:rel "icon", :type "image/png", :href "respo.png"}]
     [:style nil "body {margin: 0;}"]

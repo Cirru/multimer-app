@@ -6,6 +6,8 @@ ns multimer-app.component.movable-type $ :require
   [] multimer-app.style.widget :as widget
   [] clojure.string :as string
   [] respo.component.debug :refer $ [] comp-debug
+  [] multimer-app.component.keyboard :refer $ [] comp-keyboard
+  [] multimer-app.component.operations :refer $ [] comp-operations
 
 def leading-chars |abcdefghijklmnopqrstuvwxyz:|.@
 
@@ -17,13 +19,25 @@ defn update-state (state op op-data)
     :draft $ assoc state :draft op-data
     :toggle $ update state :editable? not
     :show $ update state :show? not
+    :append $ update state :draft
+      fn (draft)
+        str draft op-data
+
+    :cancel $ update state :draft
+      fn (draft)
+        if (not= draft |)
+          subs draft 0 $ dec (count draft)
+          , |
+
     , state
 
 defn handle-local-click
   word focus mutate editable?
   fn (simple-event dispatch)
     if editable? (dispatch :vocabulary/rm-word word)
-      dispatch :edit/update-token $ conj focus word
+      do
+        dispatch :edit/update-token $ conj focus word
+        mutate :draft |
 
 defn handle-change (mutate)
   fn (simple-event dispatch)
@@ -35,8 +49,7 @@ defn handle-keydown (draft mutate focus)
       and
         = 13 $ :key-code simple-event
         not= draft |
-      do (mutate :draft |)
-        dispatch :vocabulary/add-word draft
+      do $ dispatch :vocabulary/add-word draft
 
 defn handle-remove (word mutate)
   fn (simple-event dispatch)
@@ -50,48 +63,22 @@ defn handle-show (mutate)
   fn (simple-event dispatch)
     mutate :show
 
+defn handle-keyboard (mutate draft)
+  fn (data dispatch)
+    cond
+      (= (count data) (, 1)) (mutate :append data)
+
+      (= data |cancel) (mutate :cancel)
+      (= data |space) (mutate :append "| ")
+      (= data |enter) (dispatch :vocabulary/add-word draft)
+      :else nil
+
 defn render (dictionary focus vocabulary)
   fn (state mutate)
     let
       (display-dict $ if (:editable? state) (, vocabulary) (into (hash-set) (concat (filter (fn (x) (not= x |)) (, dictionary)) (, vocabulary))))
-        grouped-dict $ ->> display-dict
-          group-by $ fn (word)
-            let
-              (first-letter $ get word 0)
-              if (string/includes? leading-chars first-letter)
-                , first-letter |0
 
       div ({})
-        div
-          {} :style $ {} (:margin "|16px 4px")
-            :max-height |400px
-            :overflow |auto
-          if (:show? state)
-            ->> grouped-dict (sort)
-              map $ fn (entry)
-                [] (key entry)
-                  div ({})
-                    ->> (val entry)
-                      map $ fn (word)
-                        [] word $ pre
-                          {} :style
-                            merge widget/button $ {}
-                              :background-color $ if (:editable? state)
-                                hsl 0 80 93
-                                hsl 300 80 70
-                              :color $ if (:editable? state)
-                                hsl 0 90 40
-                                hsl 0 0 100
-
-                            , :attrs
-                            {} :inner-text word
-                            , :event
-                            {} :click $ handle-local-click word focus mutate (:editable? state)
-
-                      into $ sorted-map
-
-              into $ sorted-map
-
         div
           {} :style $ {} (:padding "|0 8px")
             :margin "|16px 0px"
@@ -125,6 +112,42 @@ defn render (dictionary focus vocabulary)
             {} :click $ handle-show mutate
             , :attrs
             {} :inner-text |show?
+
+        div
+          {} :style $ {} (:margin "|16px 4px")
+            :max-height |400px
+            :overflow |auto
+          if (:show? state)
+            ->> display-dict
+              filter $ fn (word)
+                if
+                  = | $ :draft state
+                  , true
+                  string/starts-with? word $ :draft state
+
+              take 10
+              map $ fn (word)
+                [] word $ pre
+                  {} :style
+                    merge widget/button $ {}
+                      :background-color $ if (:editable? state)
+                        hsl 0 80 93
+                        hsl 300 80 70
+                      :color $ if (:editable? state)
+                        hsl 0 90 40
+                        hsl 0 0 100
+
+                    , :attrs
+                    {} :inner-text word
+                    , :event
+                    {} :click $ handle-local-click word focus mutate (:editable? state)
+
+              into $ sorted-map
+
+        div ({})
+          comp-operations focus
+        div ({})
+          comp-keyboard $ handle-keyboard mutate (:draft state)
 
         -- comp-debug state $ {}
 

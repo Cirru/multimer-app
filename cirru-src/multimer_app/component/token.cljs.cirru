@@ -42,6 +42,7 @@ defn render
           :min-width |16px
           :min-height |16px
           :text-align |center
+          :white-space |pre
 
         , :attrs
         {} (:inner-text token)
