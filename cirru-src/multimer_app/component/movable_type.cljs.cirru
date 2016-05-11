@@ -4,6 +4,9 @@ ns multimer-app.component.movable-type $ :require
   [] respo.alias :refer $ [] create-comp div span input pre button
   [] multimer-app.util.element :refer $ [] text
   [] multimer-app.style.widget :as widget
+  [] clojure.string :as string
+
+def leading-chars |abcdefghijklmnopqrstuvwxyz:|.@
 
 defn init-state ()
   {} :draft | :candidates (hash-set)
@@ -27,10 +30,6 @@ defn update-state (state op op-data)
     :toggle $ update state :editable? not
     , state
 
-defn handle-select (word focus)
-  fn (simple-event dispatch)
-    dispatch :edit/update-token $ conj focus word
-
 defn handle-local-click
   word focus mutate editable?
   fn (simple-event dispatch)
@@ -44,10 +43,10 @@ defn handle-change (mutate)
 defn handle-keydown (draft mutate focus)
   fn (simple-event dispatch)
     if
-      = 13 $ :key-code simple-event
-      do
-        dispatch :edit/update-token $ conj focus draft
-        mutate :draft |
+      and
+        = 13 $ :key-code simple-event
+        not= draft |
+      do (mutate :draft |)
         mutate :add draft
 
 defn handle-remove (word mutate)
@@ -58,113 +57,79 @@ defn handle-toggle (mutate)
   fn (simple-event dispatch)
     mutate :toggle
 
-defn handle-once (mutate word focus)
-  fn (e dispatch)
-    dispatch :edit/update-token $ conj focus word
-    mutate :draft |
-
-defn handle-submit (mutate word focus)
-  fn (e dispatch)
-    dispatch :edit/update-token $ conj focus word
-    mutate :draft |
-    mutate :add word
-
 defn render (dictionary focus)
   fn (state mutate)
-    div ({})
-      div
-        {} :style $ {} (:padding "|0 8px")
-          :margin "|16epx 0px"
-        input $ {} :event
-          {} :input (handle-change mutate)
-            , :keydown
-            handle-keydown (:draft state)
-              , mutate focus
+    let
+      (display-dict $ if (:editable? state) (:candidates state) (into (hash-set) (concat dictionary $ :candidates state)))
+        grouped-dict $ ->> display-dict
+          group-by $ fn (word)
+            let
+              (first-letter $ get word 0)
+              if (string/includes? leading-chars first-letter)
+                , first-letter |0
 
-          , :style
-          {} (:line-height 2)
-            :font-size |14px
-            :font-family |Menlo,Consolas
-            :padding "|0 8px"
-          , :attrs
-          {} :value $ :draft state
+      println grouped-dict
+      div ({})
+        div
+          {} :style $ {} (:margin "|16px 4px")
+            :max-height |400px
+            :overflow |auto
+          ->> grouped-dict (sort)
+            map $ fn (entry)
+              [] (key entry)
+                div ({})
+                  ->> (val entry)
+                    map $ fn (word)
+                      [] word $ pre
+                        {} :style
+                          {} (:font-family |Menlo,Consolas)
+                            :font-size |14px
+                            :background-color $ if (:editable? state)
+                              hsl 0 80 93
+                              hsl 300 80 70
+                            :padding "|0 8px"
+                            :line-height 2
+                            :color $ if (:editable? state)
+                              hsl 0 90 40
+                              hsl 0 0 100
+                            :display |inline-block
+                            :margin "|4px 6px"
 
-        div $ {} :style
-          {} (:width |8px)
-            :display |inline-block
+                          , :attrs
+                          {} :inner-text word
+                          , :event
+                          {} :click $ handle-local-click word focus mutate (:editable? state)
 
-        button $ {} :style
-          merge widget/button $ {}
-          , :event
-          {} :click $ handle-submit mutate (:draft state)
-            , focus
-          , :attrs
-          {} :inner-text |submit
+                    into $ sorted-map
 
-        button $ {} :style
-          merge widget/button $ {}
-          , :event
-          {} :click $ handle-once mutate (:draft state)
-            , focus
-          , :attrs
-          {} :inner-text |once
+            into $ sorted-map
 
-        button $ {} :style
-          merge widget/button $ {}
-          , :event
-          {} :click $ handle-toggle mutate
-          , :attrs
-          {} :inner-text |edit?
+        div
+          {} :style $ {} (:padding "|0 8px")
+            :margin "|16epx 0px"
+          input $ {} :event
+            {} :input (handle-change mutate)
+              , :keydown
+              handle-keydown (:draft state)
+                , mutate focus
 
-      div
-        {} :style $ {} (:margin "|8px 0")
-        ->> dictionary (sort)
-          map-indexed $ fn (index word)
-            [] index $ span
-              {} :event
-                {} :click $ handle-select word focus
-                , :attrs
-                {} :inner-text word
-                , :style
-                {} (:font-size |14px)
-                  :font-family |Menlo,Consolas
-                  :line-height 1.8
-                  :background-color $ hsl 120 70 60
-                  :display |inline-block
-                  :padding "|0 8px"
-                  :min-width |40px
-                  :min-height |20px
-                  :vertical-align |middle
-                  :color $ hsl 0 0 100
-                  :margin "|4px 4px"
+            , :style
+            {} (:line-height 2)
+              :font-size |14px
+              :font-family |Menlo,Consolas
+              :padding "|0 8px"
+            , :attrs
+            {} :value $ :draft state
 
-          into $ sorted-map
+          div $ {} :style
+            {} (:width |8px)
+              :display |inline-block
 
-      div
-        {} :style $ {} (:margin "|16px 4px")
-        ->> (:candidates state)
-          sort
-          map-indexed $ fn (index word)
-            [] index $ pre
-              {} :style
-                {} (:font-family |Menlo,Consolas)
-                  :font-size |14px
-                  :background-color $ if (:editable? state)
-                    hsl 0 80 93
-                    hsl 300 80 70
-                  :padding "|0 8px"
-                  :line-height 2
-                  :color $ if (:editable? state)
-                    hsl 0 90 40
-                    hsl 0 0 100
-                  :display |inline-block
-                  :margin "|4px 6px"
-
-                , :attrs
-                {} :inner-text word
-                , :event
-                {} :click $ handle-local-click word focus mutate (:editable? state)
-
-          into $ sorted-map
+          button $ {} :style
+            merge widget/button $ {}
+            , :event
+            {} :click $ handle-toggle mutate
+            , :attrs
+            {} :inner-text |edit?
 
 def comp-movable-type $ create-comp :movable-type init-state update-state render

@@ -40,6 +40,7 @@ defn render
           :line-height 1.6
           :display |inline-block
           :min-width |16px
+          :min-height |16px
           :text-align |center
 
         , :attrs

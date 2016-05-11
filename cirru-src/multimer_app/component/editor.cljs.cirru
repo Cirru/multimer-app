@@ -55,13 +55,13 @@ defn render (file focus target-expression)
             :flex-direction |row
           render-button "|new expr" :edit/new-expression focus
           render-button |append :edit/append focus
-          render-button |line :edit/prepend-line focus
           render-button |remove :edit/remove focus
           render-button |insert :edit/insert focus
           render-button |prepend :edit/prepend focus
           render-button |fold :edit/fold focus
           render-button |unfold :edit/unfold focus
           render-button |newline :edit/append-line focus
+          render-button |line :edit/prepend-line focus
           button $ {} :style style-button :event
             {} :click $ handle-close focus
             , :attrs

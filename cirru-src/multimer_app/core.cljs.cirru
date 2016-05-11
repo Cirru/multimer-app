@@ -28,6 +28,13 @@ defn handle-message (event)
     reset! store-ref $ differ/patch @store-ref message
     println |patched.
 
+defn handle-reload (event)
+  println "|reloading in 4s..."
+  js/setTimeout
+    fn ()
+      .reload js/location
+    , 4000
+
 defn -main ()
   enable-console-print!
   render-app
@@ -35,6 +42,8 @@ defn -main ()
   add-watch states-ref :rerender render-app
   set! (.-onmessage ws)
     , handle-message
+  set! (.-onclose ws)
+    , handle-reload
 
 set! (.-onload js/window)
   , -main
