@@ -29,3 +29,9 @@ def keystroke $ {} (:line-height 2.4)
   :min-width |40px
   :min-height |40px
   :flex 1
+
+def textbox $ {} (:line-height 2)
+  :padding "|0 8px"
+  :font-size |16px
+  :outine |none
+  :min-width |300px

@@ -78,7 +78,7 @@
 (deftask rsync []
   (fn [next-task]
     (fn [fileset]
-      (sh "rsync" "-r" "target/" "tiye:repo/mvc-works/multimer-app" "--exclude" "main.out" "--delete")
+      (sh "rsync" "-r" "target/" "tiye:repo/Cirru/multimer-app" "--exclude" "main.out" "--delete")
       (next-task fileset))))
 
 (deftask send-tiye []

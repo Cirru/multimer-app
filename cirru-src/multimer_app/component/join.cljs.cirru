@@ -3,6 +3,7 @@ ns multimer-app.component.join $ :require
   [] respo.alias :refer $ [] create-comp span div input button
   [] multimer-app.util.element :refer $ [] text
   [] respo.component.debug :refer $ [] comp-debug
+  [] multimer-app.style.widget :as widget
 
 defn init-state ()
   {} :name |chen :password |
@@ -33,7 +34,8 @@ defn render ()
         div ({})
           div ({})
             text |Name
-          input $ {} :attrs
+          input $ {} :style (merge widget/textbox)
+            , :attrs
             {} :value (:name state)
               , :placeholder |Name
             , :event
@@ -42,14 +44,17 @@ defn render ()
         div ({})
           div ({})
             text |Password
-          input $ {} :attrs
+          input $ {} :style (merge widget/textbox)
+            , :attrs
             {} :value (:password state)
               , :placeholder |Password
             , :event
             {} :input $ handle-change mutate :password
 
         div ({})
-          button $ {} :attrs ({} :inner-text |Submit)
+          button $ {} :style (merge widget/button)
+            , :attrs
+            {} :inner-text |Submit
             , :event
             {} :click $ handle-submit state
 

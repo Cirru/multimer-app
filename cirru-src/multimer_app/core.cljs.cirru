@@ -5,13 +5,22 @@ ns multimer-app.core $ :require
   [] respo-spa.core :refer $ [] render
   [] multimer-app.updater.core :refer $ [] updater
   [] multimer-app.component.container :refer $ [] comp-container
+  [] multimer-app.util.url :refer $ [] parse-query
 
 defonce store-ref $ atom nil
 
 defonce states-ref $ atom ({})
 
-defonce ws $ new js/WebSocket
-  str |ws:// js/location.hostname |:7100
+defonce ws $ let
+  (query $ parse-query)
+  enable-console-print!
+  println query
+  new js/WebSocket $ str |ws://
+    or (get query |domain)
+      , js/location.hostname
+    , |:
+    or (get query |port)
+      , 7100
 
 defn dispatch (op op-data)
   .send ws $ pr-str ([] op op-data)
