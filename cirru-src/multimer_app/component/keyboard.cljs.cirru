@@ -31,42 +31,88 @@ def style-line $ {} (:display |flex)
 
 def style-sudoku $ {} (:flex 1)
 
+def event-name $ if (some? js/document.documentElement.ontouchstart)
+  , :touchstart :mousedown
+
 defn render-button (text handler)
   button $ {} :style
     merge widget/keystroke $ {}
     , :event
-    {} :click handler
+    {} event-name handler
     , :attrs
     {} :inner-text text
 
-defn render-j-r (route shift?)
+defn render-letter-1 (route shift?)
   let
     (f $ if shift? upper-case identity)
     div ({} :style style-sudoku)
       div ({} :style style-line)
-        render-button (f |j)
-          handle-at (f |j)
+        render-button (f |v)
+          handle-at (f |v)
+            , route
+
+        render-button (f |h)
+          handle-at (f |h)
+            , route
+
+        render-button (f |g)
+          handle-at (f |g)
+            , route
+
+      div ({} :style style-line)
+        render-button (f |x)
+          handle-at (f |x)
+            , route
+
+        render-button (f |b)
+          handle-at (f |b)
+            , route
+
+        render-button (f |y)
+          handle-at (f |y)
+            , route
+
+      div ({} :style style-line)
+        render-button (f |q)
+          handle-at (f |q)
+            , route
+
+        render-button (f |w)
+          handle-at (f |w)
             , route
 
         render-button (f |k)
           handle-at (f |k)
             , route
 
+defn render-letter-2 (route shift?)
+  let
+    (f $ if shift? upper-case identity)
+    div ({} :style style-sudoku)
+      div ({} :style style-line)
+        render-button (f |r)
+          handle-at (f |r)
+            , route
+
+        render-button (f |t)
+          handle-at (f |t)
+            , route
+
+        render-button (f |e)
+          handle-at (f |e)
+            , route
+
+      div ({} :style style-line)
         render-button (f |l)
           handle-at (f |l)
             , route
 
-      div ({} :style style-line)
-        render-button (f |m)
-          handle-at (f |m)
+        render-button (f |i)
+          handle-at (f |i)
             , route
 
         render-button (f |n)
           handle-at (f |n)
-            , route
-
-        render-button (f |o)
-          handle-at (f |o)
             , route
 
       div ({} :style style-line)
@@ -74,15 +120,15 @@ defn render-j-r (route shift?)
           handle-at (f |p)
             , route
 
-        render-button (f |q)
-          handle-at (f |q)
+        render-button (f |d)
+          handle-at (f |d)
             , route
 
-        render-button (f |r)
-          handle-at (f |r)
+        render-button (f |c)
+          handle-at (f |c)
             , route
 
-defn render-a-i (route shift?)
+defn render-letter-3 (route shift?)
   let
     (f $ if shift? upper-case identity)
     div ({} :style style-sudoku)
@@ -91,21 +137,21 @@ defn render-a-i (route shift?)
           handle-at (f |a)
             , route
 
-        render-button (f |b)
-          handle-at (f |b)
+        render-button (f |s)
+          handle-at (f |s)
             , route
 
-        render-button (f |c)
-          handle-at (f |c)
+        render-button (f |o)
+          handle-at (f |o)
             , route
 
       div ({} :style style-line)
-        render-button (f |d)
-          handle-at (f |d)
+        render-button (f |u)
+          handle-at (f |u)
             , route
 
-        render-button (f |e)
-          handle-at (f |e)
+        render-button (f |m)
+          handle-at (f |m)
             , route
 
         render-button (f |f)
@@ -113,51 +159,8 @@ defn render-a-i (route shift?)
             , route
 
       div ({} :style style-line)
-        render-button (f |g)
-          handle-at (f |g)
-            , route
-
-        render-button (f |h)
-          handle-at (f |h)
-            , route
-
-        render-button (f |i)
-          handle-at (f |i)
-            , route
-
-defn render-s-dot (route shift?)
-  let
-    (f $ if shift? upper-case identity)
-    div ({} :style style-sudoku)
-      div ({} :style style-line)
-        render-button (f |s)
-          handle-at (f |s)
-            , route
-
-        render-button (f |t)
-          handle-at (f |t)
-            , route
-
-        render-button (f |u)
-          handle-at (f |u)
-            , route
-
-      div ({} :style style-line)
-        render-button (f |v)
-          handle-at (f |v)
-            , route
-
-        render-button (f |w)
-          handle-at (f |w)
-            , route
-
-        render-button (f |x)
-          handle-at (f |x)
-            , route
-
-      div ({} :style style-line)
-        render-button (f |y)
-          handle-at (f |y)
+        render-button (f |j)
+          handle-at (f |j)
             , route
 
         render-button (f |z)
@@ -170,14 +173,14 @@ defn render-control (route mutate)
   div ({} :style style-sudoku)
     div ({} :style style-line)
       render-button |: $ handle-at |: route
-      render-button || $ handle-at || route
+      render-button |␣ $ handle-at |space route
       render-button |⌫ $ handle-at |cancel route
     div ({} :style style-line)
       render-button |- $ handle-at |v route
       render-button |/ $ handle-at |w route
       render-button |enter $ handle-at |enter route
     div ({} :style style-line)
-      render-button |␣ $ handle-at |space route
+      render-button || $ handle-at || route
       render-button |⋯ $ handle-special |switch mutate
       render-button |shift $ handle-special |shift mutate
 
@@ -243,16 +246,16 @@ defn render-numbers (route)
 
 defn render-punctuation (route mutate)
   div ({} :style style-board)
-    render-brackets route
     render-symbols route
+    render-brackets route
     render-numbers route
     render-control-2 route mutate
 
 defn render-alphabet (route mutate shift?)
   div ({} :style style-board)
-    render-a-i route shift?
-    render-j-r route shift?
-    render-s-dot route shift?
+    render-letter-1 route shift?
+    render-letter-2 route shift?
+    render-letter-3 route shift?
     render-control route mutate
 
 defn render (route)

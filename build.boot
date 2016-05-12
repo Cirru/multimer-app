@@ -14,7 +14,7 @@
                  [binaryage/devtools        "0.5.2"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
                  [mvc-works/respo           "0.1.19"]
-                 [mvc-works/respo-spa       "0.1.3"]
+                 [mvc-works/respo-spa       "0.1.4"]
                  [differ "0.3.1"]]
 
   :repositories #(conj % ["clojars" {:url "https://clojars.org/repo/"}]))
