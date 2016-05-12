@@ -2,7 +2,7 @@
 ns multimer-app.component.token $ :require
   [] hsl.core :refer $ [] hsl
   [] respo.alias :refer $ [] create-comp div span
-  [] multimer-app.util.measure :refer $ [] text-width
+  [] multimer-app.util.event :refer $ [] click-event
 
 defn handle-change (coord filename)
   fn (simple-event dispatch)
@@ -28,27 +28,29 @@ defn render
           :margin "|0 4px"
           :border |none
           :background-color $ if focused?
-            hsl 0 0 84
+            hsl 0 0 100 0.2
             if blank?
-              hsl 0 80 80
-              hsl 0 0 94
+              hsl 0 30 90 0.2
+              hsl 0 0 0 0
 
           :outline $ if focused?
             str "|1px solid " $ hsl 0 90 80
             , |none
-          :padding "|0 1px"
+          :padding "|2px 4px"
           :line-height 1.6
           :display |inline-block
           :min-width |16px
-          :min-height |16px
+          :min-height |24px
           :text-align |center
           :white-space |pre
+          :color $ hsl 0 0 100
+          :vertical-align |top
 
         , :attrs
         {} (:inner-text token)
           :z-index 1
           :class-name $ if focused? |cursor nil
         , :event
-        {} $ :click (handle-focus coord filename)
+        {} $ click-event (handle-focus coord filename)
 
 def comp-token $ create-comp :token render

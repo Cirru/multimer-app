@@ -3,6 +3,7 @@ ns multimer-app.component.expression $ :require
   [] hsl.core :refer $ [] hsl
   [] respo.alias :refer $ [] create-comp div
   [] multimer-app.component.token :refer $ [] comp-token
+  [] multimer-app.util.event :refer $ [] click-event
 
 declare comp-expression
 
@@ -30,12 +31,12 @@ defn render
 
             :padding $ if
               and inline? $ not tail?
-              , "|0px 4px 2px 4px" "|0 0 0 4px"
+              , "|2px 4px 2px 4px" "|2px 2px 2px 4px"
             :border-style |solid
             :border-color $ hsl 0 0 86
             :border-width $ if tail? "|0 0 0 1px"
               if inline? "|0 0 1px 0" "|0 0 0 1px"
-            :background-color $ hsl 0 0 94
+            :background-color $ hsl 240 60 70
             :outline $ if focused?
               str "|1px solid " $ hsl 0 90 80
               , |none
@@ -44,7 +45,7 @@ defn render
             :min-width |16px
 
           , :event
-          {} :click $ handle-focus coord filename
+          {} click-event $ handle-focus coord filename
           , :attrs
           {} :z-index |1 :class-name $ if focused? |cursor nil
 

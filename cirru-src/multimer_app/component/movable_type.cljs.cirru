@@ -19,10 +19,6 @@ defn update-state (state op op-data)
     :draft $ assoc state :draft op-data
     :toggle $ update state :editable? not
     :show $ update state :show? not
-    :append $ update state :draft
-      fn (draft)
-        str draft op-data
-
     :cancel $ update state :draft
       fn (draft)
         if (not= draft |)
@@ -39,9 +35,10 @@ defn handle-local-click
         dispatch :edit/update-token $ conj focus word
         mutate :draft |
 
-defn handle-change (mutate)
+defn handle-change (mutate focus)
   fn (simple-event dispatch)
     mutate :draft $ :value simple-event
+    dispatch :edit/update-token $ conj focus (:value simple-event)
 
 defn handle-keydown (draft mutate focus)
   fn (simple-event dispatch)
@@ -63,13 +60,28 @@ defn handle-show (mutate)
   fn (simple-event dispatch)
     mutate :show
 
-defn handle-keyboard (mutate draft)
+defn handle-keyboard (mutate draft focus)
   fn (data dispatch)
     cond
-      (= (count data) (, 1)) (mutate :append data)
+      (= (count data) (, 1))
+        let
+          (new-draft $ str draft data)
+          mutate :draft new-draft
+          dispatch :edit/update-token $ conj focus new-draft
 
-      (= data |cancel) (mutate :cancel)
-      (= data |space) (mutate :append "| ")
+      (= data |cancel)
+        let
+          (new-draft $ if (= draft |) (, draft) (subs draft 0 $ dec (count draft)))
+
+          mutate :draft new-draft
+          dispatch :edit/update-token $ conj focus new-draft
+
+      (= data |space)
+        let
+          (new-draft $ str draft |)
+          mutate :draft new-draft
+          dispatch :edit/update-token $ conj focus new-draft
+
       (= data |enter) (dispatch :vocabulary/add-word draft)
       :else nil
 
@@ -81,9 +93,9 @@ defn render (dictionary focus vocabulary)
       div ({})
         div
           {} :style $ {} (:padding "|0 8px")
-            :margin "|16px 0px"
+            :margin "|4px 0px 16px 0"
           input $ {} :event
-            {} :input (handle-change mutate)
+            {} :input (handle-change mutate focus)
               , :keydown
               handle-keydown (:draft state)
                 , mutate focus
@@ -114,40 +126,50 @@ defn render (dictionary focus vocabulary)
             {} :inner-text |show?
 
         div
-          {} :style $ {} (:margin "|16px 4px")
-            :max-height |400px
-            :overflow |auto
-          if (:show? state)
-            ->> display-dict
-              filter $ fn (word)
-                if
-                  = | $ :draft state
-                  , true
-                  string/starts-with? word $ :draft state
+          {} :style $ {} (:display |flex)
+          div
+            {} :style $ {} (:margin "|0px 4px")
+              :max-height |400px
+              :overflow |auto
+              :flex 1
+            if (:show? state)
+              ->> display-dict
+                filter $ fn (word)
+                  if
+                    = | $ :draft state
+                    , true
+                    if
+                      = word $ :draft state
+                      , false
+                      string/starts-with? word $ :draft state
 
-              take 10
-              map $ fn (word)
-                [] word $ pre
-                  {} :style
-                    merge widget/button $ {}
-                      :background-color $ if (:editable? state)
-                        hsl 0 80 93
-                        hsl 300 80 70
-                      :color $ if (:editable? state)
-                        hsl 0 90 40
-                        hsl 0 0 100
+                take 10
+                map $ fn (word)
+                  [] word $ pre
+                    {} :style
+                      merge widget/button $ {}
+                        :background-color $ if (:editable? state)
+                          hsl 0 80 93
+                          hsl 300 80 70
+                        :color $ if (:editable? state)
+                          hsl 0 90 40
+                          hsl 0 0 100
+                        :margin "|6px 6px"
 
-                    , :attrs
-                    {} :inner-text word
-                    , :event
-                    {} :click $ handle-local-click word focus mutate (:editable? state)
+                      , :attrs
+                      {} :inner-text word
+                      , :event
+                      {} :click $ handle-local-click word focus mutate (:editable? state)
 
-              into $ sorted-map
+                into $ sorted-map
 
-        div ({})
-          comp-operations focus
+          div
+            {} :style $ {} (:flex 1)
+            comp-operations focus mutate
+
         div ({})
           comp-keyboard $ handle-keyboard mutate (:draft state)
+            , focus
 
         -- comp-debug state $ {}
 

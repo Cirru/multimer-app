@@ -6,11 +6,12 @@ ns multimer-app.component.operations $ :require
 
 def style-button $ merge widget/button
   {}
-    :background-color $ hsl 300 80 60
+    :background-color $ hsl 170 80 40
     :font-family "|Menlo, Consolas"
-    :margin "|6px 4px"
-    :font-size |10px
+    :margin "|6px 6px"
+    :font-size |14px
     :line-height |32px
+    :flex 1
 
 defn handle-close (focus)
   fn (simple-event dispatch)
@@ -21,29 +22,29 @@ defn handle-save (filename)
   fn (e dispatch)
     dispatch :effect/save-file filename
 
-defn render-button (guide command focus)
+defn render-button
+  guide command focus change
   let
-    (handler $ fn (simple-event dispatch) (dispatch command focus))
+    (handler $ fn (simple-event dispatch) (dispatch command focus) (change :draft |))
 
     button $ {} :style style-button :attrs ({} :inner-text guide)
       , :event
       {} :click handler
 
-defn render (focus)
+defn render (focus change)
   fn (state mutate)
     div
-      {} :style $ {} (:display |flex)
-        :flex-direction |row
-      render-button "|new expr" :edit/new-expression focus
-      render-button |append :edit/append focus
-      render-button |remove :edit/remove focus
-      render-button |insert :edit/insert focus
-      render-button |prepend :edit/prepend focus
-      render-button |fold :edit/fold focus
-      render-button |unfold :edit/unfold focus
-      render-button |newline :edit/append-line focus
-      render-button |line :edit/prepend-line focus
-      render-button |out :state/out nil
+      {} :style $ {} (:margin "|0 0 6px 0")
+      render-button |fold :edit/fold focus change
+      render-button |unfold :edit/unfold focus change
+      render-button |remove :edit/remove focus change
+      render-button |insert :edit/insert focus change
+      render-button |expression :edit/new-expression focus change
+      render-button |append :edit/append focus change
+      render-button |out :state/out nil change
+      render-button |newline :edit/append-line focus change
+      render-button |line :edit/prepend-line focus change
+      render-button |prepend :edit/prepend focus change
       button $ {} :style style-button :event
         {} :click $ handle-save (first focus)
         , :attrs

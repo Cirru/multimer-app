@@ -3,6 +3,7 @@ ns multimer-app.component.keyboard $ :require
   [] respo.alias :refer $ [] create-comp div span button
   [] multimer-app.style.widget :as widget
   [] clojure.string :refer $ [] upper-case
+  [] multimer-app.util.event :refer $ [] click-event
 
 defn init-state ()
   {} :punctuation? false :shift? false
@@ -31,14 +32,11 @@ def style-line $ {} (:display |flex)
 
 def style-sudoku $ {} (:flex 1)
 
-def event-name $ if (some? js/document.documentElement.ontouchstart)
-  , :touchstart :mousedown
-
 defn render-button (text handler)
   button $ {} :style
-    merge widget/keystroke $ {}
+    merge widget/keystroke $ {} (:font-size |18px)
     , :event
-    {} event-name handler
+    {} click-event handler
     , :attrs
     {} :inner-text text
 
@@ -178,11 +176,11 @@ defn render-control (route mutate)
     div ({} :style style-line)
       render-button |- $ handle-at |v route
       render-button |/ $ handle-at |w route
-      render-button |enter $ handle-at |enter route
+      render-button "| ⏎" $ handle-at |enter route
     div ({} :style style-line)
       render-button || $ handle-at || route
       render-button |⋯ $ handle-special |switch mutate
-      render-button |shift $ handle-special |shift mutate
+      render-button |⇧ $ handle-special |shift mutate
 
 defn render-control-2 (route mutate)
   div ({} :style style-sudoku)
@@ -191,13 +189,13 @@ defn render-control-2 (route mutate)
       render-button |* $ handle-at || route
       render-button |⌫ $ handle-at |cancel route
     div ({} :style style-line)
-      render-button |= $ handle-at |v route
-      render-button |% $ handle-at |w route
-      render-button |enter $ handle-at |enter route
+      render-button |= $ handle-at |= route
+      render-button |% $ handle-at |% route
+      render-button "| ⏎" $ handle-at |enter route
     div ({} :style style-line)
       render-button |0 $ handle-at |0 route
       render-button |⋯ $ handle-special |switch mutate
-      render-button |shift $ handle-special |shift mutate
+      render-button |⇧ $ handle-special |shift mutate
 
 defn render-brackets (route)
   div ({} :style style-sudoku)

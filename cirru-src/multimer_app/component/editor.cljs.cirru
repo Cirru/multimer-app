@@ -16,7 +16,7 @@ defn render
         :display |flex
         :flex-direction |column
       div
-        {} :style $ {} (:padding "|40px 8px")
+        {} :style $ {} (:padding "|160px 8px")
           :flex 1
           :overflow |auto
         comp-expression target-expression
