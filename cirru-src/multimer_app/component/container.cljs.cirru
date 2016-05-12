@@ -33,7 +33,6 @@ defn render (store)
           if (some? maybe-expression)
             comp-editor (:file store)
               , focus maybe-expression
-              :vocabulary store
             comp-finder (:files store)
               , focus
               :file store

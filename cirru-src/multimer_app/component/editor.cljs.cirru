@@ -8,8 +8,7 @@ ns multimer-app.component.editor $ :require
   [] respo.component.debug :refer $ [] comp-debug
   [] multimer-app.style.widget :as widget
 
-defn render
-  file focus target-expression vocabulary
+defn render (file focus target-expression)
   fn (state mutate)
     div
       {} :style $ {} (:height |100%)
@@ -35,6 +34,6 @@ defn render
             comp-movable-type
               into (hash-set)
                 flatten $ :tree file
-              , focus vocabulary
+              , focus
 
 def comp-editor $ create-comp :editor render
